@@ -1,0 +1,13 @@
+<div class="batch">
+  <ul>
+    <li class="previous" tal:repeat="previous batcher.previous()">
+      <a tal:attributes="href batcher.batch_url(previous)"
+	 tal:content="previous.number" />
+    </li>
+    <li class="current" tal:content="batch.number" />
+    <li class="next" tal:repeat="next batcher.next()">
+      <a tal:attributes="href batcher.batch_url(next)"
+	 tal:content="next.number" />
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,4 @@
+CREDITS
+=======
+
+This package is part of the Dolmen Project, supported and financed by NPAI.

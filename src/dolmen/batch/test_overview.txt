@@ -1,0 +1,132 @@
+Example
+=======
+
+Grokking the needed packages
+----------------------------
+
+::
+
+  >>> from grokcore.component import testing
+  >>> testing.grok('dolmen.location')
+
+Creating the environement
+-------------------------
+
+First, we need a root to be able to compute the URL::
+
+  >>> from zope.location import Location
+  >>> from cromlech.browser import IPublicationRoot
+  >>> from zope.interface import directlyProvides
+
+  >>> root = Location()
+  >>> directlyProvides(root, IPublicationRoot)
+
+Then we create a context and a request for the batch::
+
+  >>> from cromlech.browser.testing import TestRequest
+
+  >>> request = TestRequest()
+  >>> context = Location()
+  >>> context.__parent__ = root
+  >>> context.__name__ = 'test_context'
+
+
+At this point, we should be able to resolve the url of our object::
+
+  >>> from dolmen.location import get_absolute_url
+  >>> get_absolute_url(context, request).lower()
+  'http://localhost/test_context'
+
+
+The batcher and the sequence
+----------------------------
+
+  >>> seq = [1, 2, 3, 4, 5, 6, 7, 8]
+
+  >>> from dolmen.batch import Batcher
+  >>> batching = Batcher(context, request, size=5)
+  >>> batching.batch_info()
+  (0, 5)
+
+  >>> assert batching.url == get_absolute_url(context, request)
+  >>> assert not batching.available
+
+  >>> batching.update(seq)
+  >>> assert batching.available
+
+  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  <div class="batch">
+    <ul>
+      <li class="current">1</li>
+      <li class="next">
+        <a href="http://localhost/test_context?batch.start=5&amp;batch.size=5">2</a>
+      </li>
+    </ul>
+  </div>
+
+
+If there's the same amount or less than the size, there's no other pages::
+
+  >>> batching = Batcher(context, request, size=10)
+  >>> batching.batch_info()
+  (0, 10)
+  >>> batching.update(seq)
+  >>> assert batching.available
+
+  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  <div class="batch">
+    <ul>
+      <li class="current">1</li>
+    </ul>
+  </div>
+
+
+Let's try to reach the next pages on a normal batch::
+
+  >>> request = TestRequest({'batch.start': 5})
+
+  >>> batching = Batcher(context, request, size=2)
+  >>> batching.batch_info()
+  (5, 2)
+
+  >>> batching.update(seq)
+  >>> assert batching.available
+
+  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  <div class="batch">
+    <ul>
+      <li class="previous">
+        <a href="http://localhost/test_context?batch.start=0&amp;batch.size=2">1</a>
+      </li>
+      <li class="previous">
+        <a href="http://localhost/test_context?batch.start=2&amp;batch.size=2">2</a>
+      </li>
+      <li class="current">3</li>
+      <li class="next">
+        <a href="http://localhost/test_context?batch.start=6&amp;batch.size=2">4</a>
+      </li>
+    </ul>
+  </div>
+
+
+the URLs should compute according to the present GET parameters::
+
+  >>> request = TestRequest({'batch.start': 5, 'framework': 'Cromlech'})
+  >>> batching = Batcher(context, request, size=2)
+  >>> batching.update(seq)
+
+  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  <div class="batch">
+    <ul>
+      <li class="previous">
+        <a href="http://localhost/test_context?framework=Cromlech&amp;batch.start=0&amp;batch.size=2">1</a>
+      </li>
+      <li class="previous">
+        <a href="http://localhost/test_context?framework=Cromlech&amp;batch.start=2&amp;batch.size=2">2</a>
+      </li>
+      <li class="current">3</li>
+      <li class="next">
+        <a href="http://localhost/test_context?framework=Cromlech&amp;batch.start=6&amp;batch.size=2">4</a>
+      </li>
+    </ul>
+  </div>

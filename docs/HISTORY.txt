@@ -1,0 +1,28 @@
+Changelog
+=========
+
+0.2 (2012-05-09)
+----------------
+
+* Updated the package to conform to the latest changes in `cromlech.browser`.
+  This change doesn't affect the API. It changes however the versions
+  requirement. Please check your versions before updating.
+
+
+0.1.2 (2012-04-18)
+------------------
+
+* handling unicode in params
+* handling multiple params
+
+
+0.1.1 (2012-01-17)
+------------------
+
+* Added some tests.
+
+
+0.1 (2012-01-11)
+----------------
+
+* Initial release

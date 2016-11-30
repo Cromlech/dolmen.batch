@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from os import path
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from cromlech.browser import IRenderable
-from cromlech.i18n import ILanguage
-from dolmen.location import get_absolute_url
+from cromlech.i18n import getLocalizer
+from cromlech.location import get_absolute_url
 from dolmen.template import TALTemplate
 from z3c.batching.batch import Batch
-from zope.interface import implements
+from zope.interface import implementer
 
 
 TEMPLATES_DIR = path.join(path.dirname(__file__), 'templates')
@@ -40,8 +40,8 @@ def flatten_params(params):
                 yield k, str(v)
 
 
+@implementer(IRenderable)
 class Batcher(object):
-    implements(IRenderable)
 
     template = TALTemplate(template_path('batch.pt'))
 
@@ -96,11 +96,18 @@ class Batcher(object):
         return namespace
 
     @property
-    def target_language(self):
-        return ILanguage(self.request, None)
-
+    def translate(self):
+        """Returns the current localizer using the thread cache.
+        Please note that the cache might be 'None' if nothing was set up.
+        None will, most of the time, mean 'no translation'.
+        """
+        localizer = getLocalizer()
+        if localizer is not None:
+            localizer.translate
+        return None
+ 
     def render(self, *args, **kwargs):
         if not self.available:
             return u''
         return self.template.render(
-            self, target_language=self.target_language, **self.namespace())
+            self, translate=self.translate, **self.namespace())

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from os import path
 from urllib.parse import urlencode
 
@@ -14,28 +15,32 @@ from zope.interface import implementer
 TEMPLATES_DIR = path.join(path.dirname(__file__), 'templates')
 
 
-def template_path(filename):
-    return path.join(TEMPLATES_DIR, filename)
+if sys.version_info >= (3,):
+    unicode = str
 
 
 def safe_str(v):
-    if isinstance(v, str):
+    if isinstance(v, bytes):
         return v
     elif isinstance(v, unicode):
         return v.encode('utf-8')
     else:
-        raise TypeError("Can't urlencode param %s" % v)
+        raise TypeError("Can't encode param %s" % v)
+
+
+def template_path(filename):
+    return path.join(TEMPLATES_DIR, filename)
 
 
 def flatten_params(params):
     for k, v in params.items():
-        if isinstance(v, (str, unicode)):
+        if isinstance(v, (bytes, unicode)):
            yield k, v
         else:
             try:
                 iterator = iter(v)
                 for i in iterator:
-                        yield k, i
+                    yield k, i
             except TypeError:
                 yield k, str(v)
 

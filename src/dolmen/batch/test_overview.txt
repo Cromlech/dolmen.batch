@@ -6,8 +6,16 @@ Grokking the needed packages
 
 ::
 
-  >>> from grokcore.component import testing
-  >>> testing.grok('dolmen.location')
+  >>> import crom
+  >>> import cromlech.location
+
+  >>> crom.monkey.incompat()
+  >>> crom.implicit.initialize()
+
+  >>> crom.configure(
+  ...     cromlech.location,
+  ... )
+
 
 Creating the environement
 -------------------------
@@ -33,7 +41,7 @@ Then we create a context and a request for the batch::
 
 At this point, we should be able to resolve the url of our object::
 
-  >>> from dolmen.location import get_absolute_url
+  >>> from cromlech.location import get_absolute_url
   >>> get_absolute_url(context, request).lower()
   'http://localhost/test_context'
 
@@ -54,7 +62,7 @@ The batcher and the sequence
   >>> batching.update(seq)
   >>> assert batching.available
 
-  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  >>> print(batching.render())  #doctest: +NORMALIZE_WHITESPACE
   <div class="batch">
     <ul>
       <li class="current">1</li>
@@ -73,7 +81,7 @@ If there's the same amount or less than the size, there's no other pages::
   >>> batching.update(seq)
   >>> assert batching.available
 
-  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  >>> print(batching.render())  #doctest: +NORMALIZE_WHITESPACE
   <div class="batch">
     <ul>
       <li class="current">1</li>
@@ -92,7 +100,7 @@ Let's try to reach the next pages on a normal batch::
   >>> batching.update(seq)
   >>> assert batching.available
 
-  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  >>> print(batching.render())  #doctest: +NORMALIZE_WHITESPACE
   <div class="batch">
     <ul>
       <li class="previous">
@@ -115,7 +123,7 @@ the URLs should compute according to the present GET parameters::
   >>> batching = Batcher(context, request, size=2)
   >>> batching.update(seq)
 
-  >>> print batching.render()  #doctest: +NORMALIZE_WHITESPACE
+  >>> print(batching.render())  #doctest: +NORMALIZE_WHITESPACE
   <div class="batch">
     <ul>
       <li class="previous">

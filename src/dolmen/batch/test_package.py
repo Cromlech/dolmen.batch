@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from cromlech.browser.testing import XMLDiff, TestResponse, TestRequest
+from cromlech.browser.testing import TestRequest as Request
+from cromlech.browser.testing import XMLDiff
 from cromlech.browser import IPublicationRoot
 from dolmen.batch import Batcher
-from zope.interface import implements
+from zope.interface import implementer
 from zope.location import Location
 
 
@@ -54,21 +55,22 @@ def test_batch():
 
     sequence = [1, 3, 5, 7, 9, 11, 13, 15]
 
+    @implementer(IPublicationRoot)
     class Publishable(Location):
-        implements(IPublicationRoot)
+        pass
 
     root = Publishable()
-    request = TestRequest()
+    request = Request()
     batcher = Batcher(root, request)
     batcher.update(sequence)
     assert not XMLDiff(batcher.render(), NO_BATCH)
 
-    request = TestRequest(form={'batch.size': 2})
+    request = Request(form={'batch.size': 2})
     batcher = Batcher(root, request)
     batcher.update(sequence)
     assert not XMLDiff(batcher.render(), BATCHED)
 
-    request = TestRequest(form={'batch.size': 2, 'batch.start': 4})
+    request = Request(form={'batch.size': 2, 'batch.start': 4})
     batcher = Batcher(root, request)
     batcher.update(sequence)
     assert not XMLDiff(batcher.render(), BATCHED_ADV)
@@ -77,12 +79,13 @@ def test_batch():
 def test_batch_unicode_param():
 
     sequence = range(10)
-    
+
+    @implementer(IPublicationRoot)
     class Publishable(Location):
-        implements(IPublicationRoot)
+        pass
 
     root = Publishable()
-    request = TestRequest(
+    request = Request(
                 form={'batch.size': 2, 'batch.start': 4, 'x':u'héhô'})
     batcher = Batcher(root, request)
     batcher.update(sequence)
@@ -94,12 +97,13 @@ def test_batch_unicode_param():
 def test_batch_multi_param():
 
     sequence = range(10)
-    
+
+    @implementer(IPublicationRoot)
     class Publishable(Location):
-        implements(IPublicationRoot)
+        pass
 
     root = Publishable()
-    request = TestRequest(
+    request = Request(
                 form={'batch.size': 2, 'batch.start': 4, 'x':[u'a', u'b']})
     batcher = Batcher(root, request)
     batcher.update(sequence)
